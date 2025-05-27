@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Upload,
   FileText,
@@ -8,6 +8,7 @@ import {
   Briefcase,
   Medal,
   GraduationCap,
+  CheckCircle,
   Award,
 } from "lucide-react";
 import CertificateCard from "../components/achievements/certificateCard";
@@ -19,7 +20,7 @@ import { useUserStore } from "../store/userstore";
 import TabButton from "../components/achievements/tabButton";
 
 const JobTailoring = () => {
-  const [activeTab, setActiveTab] = useState("Certificates");
+  const [activeTab, setActiveTab] = useState("Matched Certificates");
   const [certificates, setCertificates] = useState([]);
   const [projects, setProjects] = useState([]);
   const [experiences, setExperiences] = useState([]);
@@ -27,6 +28,7 @@ const JobTailoring = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const userData = useUserStore((state) => state.userData);
+  const [matchscore, setMatchScore] = useState(0);
 
   const handleAnalyze = async () => {
     if (!jobDescription.trim()) return;
@@ -45,11 +47,13 @@ const JobTailoring = () => {
         certificates = [],
         projects = [],
         experiences = [],
+        overall_score = 0,
       } = responseData || {};
 
       setCertificates(Array.isArray(certificates) ? certificates : []);
       setProjects(Array.isArray(projects) ? projects : []);
       setExperiences(Array.isArray(experiences) ? experiences : []);
+      setMatchScore(parseFloat((overall_score * 100).toFixed(2)));
 
       setAnalysisComplete(true);
     } catch (error) {
@@ -138,67 +142,77 @@ const JobTailoring = () => {
               </>
             ) : (
               <div className="rounded-lg bg-gray-50 p-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Analysis Complete
-                  </h3>
-                  <button
-                    type="button"
-                    className="rounded-full p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-500"
-                    onClick={resetForm}
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
+                <div className="rounded-lg bg-gray-50 p-6">
+                  <div className="flex items-center justify-between">
+                    {/* Left: Title + Match Score */}
+                    <div className="flex items-center space-x-4">
+                      <h3 className="text-lg font-medium text-gray-900">
+                        Analysis Complete
+                      </h3>
+                      <div className="flex items-center space-x-1">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="text-sm font-medium text-gray-700">
+                          Match:
+                        </span>
+                        <span className="text-sm font-semibold text-green-700">
+                          {matchscore}%
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Right: Close Button */}
+                    <button
+                      type="button"
+                      className="rounded-full p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-500"
+                      onClick={resetForm}
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  {/* Tabs */}
+                  <div className="mt-4 flex space-x-4 border-b">
+                    <nav className="flex w-full">
+                      <TabButton
+                        active={activeTab === "Matched Certificates"}
+                        onClick={() => setActiveTab("Matched Certificates")}
+                        icon={<FileText className="h-5 w-5" />}
+                        label="Matched Certificates"
+                        className="w-1/3 text-center"
+                      />
+                      <TabButton
+                        active={activeTab === "Matched Projects"}
+                        onClick={() => setActiveTab("Matched Projects")}
+                        icon={<Briefcase className="h-5 w-5" />}
+                        label="Matched Projects"
+                        className="w-1/3 text-center"
+                      />
+                      <TabButton
+                        active={activeTab === "Matched Experiences"}
+                        onClick={() => setActiveTab("Matched Experiences")}
+                        icon={<Medal className="h-5 w-5" />}
+                        label="Matched Experiences"
+                        className="w-1/3 text-center"
+                      />
+                    </nav>
+                  </div>
+
+                  {/* Results */}
+                  <div className="divide-y divide-gray-200 rounded-lg bg-white shadow">
+                    {activeTab === "Matched Certificates" &&
+                      certificates.map((cert) => (
+                        <CertificateCard key={cert._id} certificate={cert} />
+                      ))}
+                    {activeTab === "Matched Projects" &&
+                      projects.map((proj) => (
+                        <ProjectCard key={proj._id} project={proj} />
+                      ))}
+                    {activeTab === "Matched Experiences" &&
+                      experiences.map((exp) => (
+                        <ExperienceCard key={exp._id} experience={exp} />
+                      ))}
+                  </div>
                 </div>
-
-                {analysisComplete && (
-                  <>
-                    <div className="flex space-x-4 border-b">
-                      <nav className="-mb-px flex space-x-8 border-b border-gray-200">
-                        <TabButton
-                          active={activeTab === "Certificates"}
-                          onClick={() => setActiveTab("Certificates")}
-                          icon={<FileText className="h-5 w-5" />}
-                          label="Certificates"
-                        />
-                        <TabButton
-                          active={activeTab === "Projects"}
-                          onClick={() => setActiveTab("Projects")}
-                          icon={<Briefcase className="h-5 w-5" />}
-                          label="Projects"
-                        />
-                        <TabButton
-                          active={activeTab === "Experiences"}
-                          onClick={() => setActiveTab("Experiences")}
-                          icon={<Medal className="h-5 w-5" />}
-                          label="Experiences"
-                        />
-                      </nav>
-
-                      <button
-                        onClick={resetForm}
-                        className="ml-auto text-red-500"
-                      >
-                        Reset
-                      </button>
-                    </div>
-
-                    <div className="divide-y divide-gray-200 rounded-lg bg-white shadow">
-                      {activeTab === "Certificates" &&
-                        certificates.map((cert) => (
-                          <CertificateCard key={cert._id} certificate={cert} />
-                        ))}
-                      {activeTab === "Projects" &&
-                        projects.map((proj) => (
-                          <ProjectCard key={proj._id} project={proj} />
-                        ))}
-                      {activeTab === "Experiences" &&
-                        experiences.map((exp) => (
-                          <ExperienceCard key={exp._id} experience={exp} />
-                        ))}
-                    </div>
-                  </>
-                )}
               </div>
             )}
           </div>

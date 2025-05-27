@@ -279,24 +279,27 @@ const AchievementManager = () => {
       </div>
 
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
+        <nav className="flex w-full">
           <TabButton
             active={activeTab === "Certificate"}
             onClick={() => setActiveTab("Certificate")}
             icon={<FileText className="h-5 w-5" />}
             label="Certificates"
+            className="w-1/3 text-center"
           />
           <TabButton
             active={activeTab === "Project"}
             onClick={() => setActiveTab("Project")}
             icon={<Briefcase className="h-5 w-5" />}
             label="Projects"
+            className="w-1/3 text-center"
           />
           <TabButton
             active={activeTab === "Experience"}
             onClick={() => setActiveTab("Experience")}
             icon={<Medal className="h-5 w-5" />}
             label="Experiences"
+            className="w-1/3 text-center"
           />
         </nav>
       </div>

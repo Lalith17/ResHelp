@@ -8,7 +8,7 @@ export const API_PATHS = {
     FORGOT_PASSWORD: `/api/auth/forgotPassword`,
   },
   DASHBOARD: {
-    GET_DATA: `/api/dashboard`,
+    GET_DATA: (userId) => `/api/dashboard/${userId}`,
   },
   IMAGE: {
     UPLOAD_IMAGE: `/api/users/imageUpload`,

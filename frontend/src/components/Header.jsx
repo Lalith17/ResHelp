@@ -47,15 +47,16 @@ const Header = ({ setSidebarOpen }) => {
               {userData?.profilePic ? (
                 <img
                   src={userData.profilePic}
-                  alt={fullName || "Profile"}
+                  alt={"Profile"}
                   className="h-full w-full object-cover"
                 />
               ) : (
                 <CharAvatar
-                  fullName={fullName}
+                  fname={userData?.fname}
+                  lname={userData?.lname}
                   width="w-10"
                   height="h-10"
-                  style="text-l"
+                  style="text-sm"
                 />
               )}
             </div>

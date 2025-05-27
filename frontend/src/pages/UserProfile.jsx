@@ -17,13 +17,13 @@ import { useUserStore } from "../store/userstore";
 import { API_PATHS } from "../utils/apiPaths";
 import axiosInstance from "../utils/axiosInstance";
 import { uploadImage } from "../utils/uploadImage";
+import CharAvatar from "../components/charAvatar";
 const UserProfile = () => {
   const [activeTab, setActiveTab] = useState("personal");
   const [saveSuccess, setSaveSuccess] = useState(false);
   const userData = useUserStore((state) => state.userData);
   const setUserData = useUserStore((state) => state.setUser);
   const [error, setError] = useState("");
-  const fullName = [userData?.fname, userData?.lname].filter(Boolean).join(" ");
   const [formData, setFormData] = useState({
     fname: userData?.fname || "",
     lname: userData?.lname || "",
@@ -154,15 +154,16 @@ const UserProfile = () => {
                     {userData?.profilePic ? (
                       <img
                         src={userData.profilePic}
-                        alt={fullName || "Profile"}
+                        alt={"Profile"}
                         className="h-full w-full object-cover"
                       />
                     ) : (
                       <CharAvatar
-                        fullName={fullName}
+                        fname={userData?.fname}
+                        lname={userData?.lname}
                         width="w-24"
                         height="h-24"
-                        style="text-l"
+                        style="text-xl"
                       />
                     )}
                   </div>
@@ -197,12 +198,6 @@ const UserProfile = () => {
                   icon={<Briefcase className="h-5 w-5" />}
                   label="Account Details"
                   onClick={() => setActiveTab("account")}
-                />
-                <ProfileNavButton
-                  active={activeTab === "preferences"}
-                  icon={<Sliders className="h-5 w-5" />}
-                  label="Preferences"
-                  onClick={() => setActiveTab("preferences")}
                 />
                 <ProfileNavButton
                   active={activeTab === "security"}
@@ -270,15 +265,20 @@ const UserProfile = () => {
                     >
                       First name
                     </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        name="fname"
-                        id="first_name"
-                        value={formData.fname}
-                        onChange={handleInputChange}
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
+                    <div className="mt-1 flex rounded-md shadow-sm">
+                      <div className="relative flex flex-grow items-stretch focus-within:z-10">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                          <User className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                          type="name"
+                          name="fname"
+                          id="fname"
+                          value={formData.fname}
+                          onChange={handleInputChange}
+                          className="block w-full rounded-md border-gray-300 pl-10 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -289,15 +289,20 @@ const UserProfile = () => {
                     >
                       Last name
                     </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        name="lname"
-                        id="last_name"
-                        value={formData.lname}
-                        onChange={handleInputChange}
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
+                    <div className="mt-1 flex rounded-md shadow-sm">
+                      <div className="relative flex flex-grow items-stretch focus-within:z-10">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                          <User className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                          type="name"
+                          name="lname"
+                          id="lname"
+                          value={formData.lname}
+                          onChange={handleInputChange}
+                          className="block w-full rounded-md border-gray-300 pl-10 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -523,179 +528,6 @@ const UserProfile = () => {
                     onClick={deleteAccount}
                   >
                     Delete Account
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "preferences" && (
-              <div className="p-6">
-                <h2 className="text-lg font-medium text-gray-900">
-                  Preferences
-                </h2>
-                <p className="text-sm text-gray-500">
-                  Customize your experience and notification settings.
-                </p>
-
-                <div className="mt-6">
-                  <h3 className="text-sm font-medium text-gray-900">
-                    Email Notifications
-                  </h3>
-                  <div className="mt-2 space-y-4">
-                    <div className="flex items-start">
-                      <div className="flex h-5 items-center">
-                        <input
-                          id="new_features"
-                          name="new_features"
-                          type="checkbox"
-                          defaultChecked
-                          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label
-                          htmlFor="new_features"
-                          className="font-medium text-gray-700"
-                        >
-                          New features and updates
-                        </label>
-                        <p className="text-gray-500">
-                          Get notified when we add new features or templates.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <div className="flex h-5 items-center">
-                        <input
-                          id="resume_tips"
-                          name="resume_tips"
-                          type="checkbox"
-                          defaultChecked
-                          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label
-                          htmlFor="resume_tips"
-                          className="font-medium text-gray-700"
-                        >
-                          Resume tips and resources
-                        </label>
-                        <p className="text-gray-500">
-                          Receive helpful tips and resources for your resume.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <div className="flex h-5 items-center">
-                        <input
-                          id="job_matches"
-                          name="job_matches"
-                          type="checkbox"
-                          defaultChecked
-                          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label
-                          htmlFor="job_matches"
-                          className="font-medium text-gray-700"
-                        >
-                          Job match notifications
-                        </label>
-                        <p className="text-gray-500">
-                          Get notified when we find job posts that match your
-                          profile.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <h3 className="text-sm font-medium text-gray-900">
-                    Resume Preferences
-                  </h3>
-                  <div className="mt-2 space-y-4">
-                    <div>
-                      <label
-                        htmlFor="default_template"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Default Resume Template
-                      </label>
-                      <select
-                        id="default_template"
-                        name="default_template"
-                        className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                        defaultValue="modern"
-                      >
-                        <option value="modern">Modern</option>
-                        <option value="classic">Classic</option>
-                        <option value="creative">Creative</option>
-                        <option value="minimal">Minimal</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="date_format"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Date Format
-                      </label>
-                      <select
-                        id="date_format"
-                        name="date_format"
-                        className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                        defaultValue="mmmm_yyyy"
-                      >
-                        <option value="mm_yyyy">MM/YYYY (e.g., 01/2025)</option>
-                        <option value="mmmm_yyyy">
-                          Month YYYY (e.g., January 2025)
-                        </option>
-                        <option value="mmm_yyyy">
-                          MMM YYYY (e.g., Jan 2025)
-                        </option>
-                      </select>
-                    </div>
-                    <div className="flex items-start">
-                      <div className="flex h-5 items-center">
-                        <input
-                          id="autosave"
-                          name="autosave"
-                          type="checkbox"
-                          defaultChecked
-                          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label
-                          htmlFor="autosave"
-                          className="font-medium text-gray-700"
-                        >
-                          Auto-save resumes
-                        </label>
-                        <p className="text-gray-500">
-                          Automatically save changes when editing resumes.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-end">
-                  <button
-                    type="button"
-                    className="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    onClick={handleSave}
-                  >
-                    Save
                   </button>
                 </div>
               </div>

@@ -1,93 +1,56 @@
-import Auth from "../models/auth.model.js";
 import Project from "../models/project.model.js";
 import Certificate from "../models/certificate.model.js";
-import User from "../models/user.model.js";
-import { isValidObjectId, Types } from "mongoose";
+import Experience from "../models/experience.model.js";
+function initStreakMap() {
+  const map = {};
+  const today = new Date();
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.toISOString().split("T")[0];
+    map[key] = 0;
+  }
+  return map;
+}
 
 export const getDashboardData = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const userObjectId = new Types.ObjectId(String(userId));
-    const totalProjects = await Project.countDocuments({ user: userObjectId });
-    const totalCertificates = await Certificate.countDocuments({
-      user: userObjectId,
+    const userId = req.params.id;
+    const fromDate = new Date();
+    fromDate.setDate(fromDate.getDate() - 30);
+    const streakMap = initStreakMap();
+
+    // Count totals
+    const [projectCount, certCount, expCount] = await Promise.all([
+      Project.countDocuments({ userId }),
+      Certificate.countDocuments({ userId }),
+      Experience.countDocuments({ userId }),
+    ]);
+
+    // Aggregate 30-day activity
+    const [projects, certs, exps] = await Promise.all([
+      Project.find({ userId, createdAt: { $gte: fromDate } }),
+      Certificate.find({ userId, createdAt: { $gte: fromDate } }),
+      Experience.find({ userId, createdAt: { $gte: fromDate } }),
+    ]);
+
+    [...projects, ...certs, ...exps].forEach((item) => {
+      const dateKey = new Date(item.createdAt).toISOString().split("T")[0];
+      if (streakMap[dateKey] !== undefined) {
+        streakMap[dateKey] += 1;
+      }
     });
-    const last30DaysProjects = await Project.aggregate([
-      {
-        $match: {
-          user: userObjectId,
-          createdAt: {
-            $gte: new Date(new Date().setDate(new Date().getDate() - 30)),
-          },
-        },
-      },
-      {
-        $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $sort: { _id: 1 },
-      },
-    ]);
-    const last30DaysCertificates = await Certificate.aggregate([
-      {
-        $match: {
-          user: userObjectId,
-          createdAt: {
-            $gte: new Date(new Date().setDate(new Date().getDate() - 30)),
-          },
-        },
-      },
-      {
-        $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $sort: { _id: 1 },
-      },
-    ]);
-    const mergeActivityData = (projects, certificates) => {
-      const streakMap = {};
-
-      // Add project counts
-      projects.forEach(({ _id, count }) => {
-        streakMap[_id] = { projects: count, certificates: 0 };
-      });
-
-      // Add certificate counts
-      certificates.forEach(({ _id, count }) => {
-        if (!streakMap[_id]) {
-          streakMap[_id] = { projects: 0, certificates: count };
-        } else {
-          streakMap[_id].certificates = count;
-        }
-      });
-
-      return streakMap;
-    };
-    const last30DaysProjectsCount = last30DaysProjects.reduce(
-      (sum, item) => sum + item.count,
-      0
-    );
-    const last30DaysCertificatesCount = last30DaysCertificates.reduce(
-      (sum, item) => sum + item.count,
-      0
-    );
-    const totalActivityLast30Days =
-      last30DaysProjectsCount + last30DaysCertificatesCount;
 
     res.json({
-      TotalProjects: totalProjects,
-      TotalCertificates: totalCertificates,
-      Last30DaysProjects: last30DaysProjectsCount,
-      Last30DaysCertificates: last30DaysCertificatesCount,
-      TotalActivityLast30Days: totalActivityLast30Days,
+      total: {
+        projects: projectCount,
+        certificates: certCount,
+        experiences: expCount,
+      },
+      activityStreak: streakMap,
     });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 };

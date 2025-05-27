@@ -1,13 +1,28 @@
 import React from "react";
-import { getInitials } from "../utils/helper";
-const CharAvatar = ({ fullName, width, height, style }) => {
+
+const CharAvatar = ({ fname, lname, width, height, style }) => {
+  const initials = `${lname ? lname.charAt(0).toUpperCase() : ""}${
+    fname ? fname.charAt(0).toUpperCase() : ""
+  }`;
+
   return (
     <div
-      className={`${width || "w-12"} ${height || "h-12"} ${
-        style || ""
-      } flex items-center justify-center rounded-full text-gray-900 font-medium bg-gray-100`}
+      className={`
+        ${width || "w-12"} 
+        ${height || "h-12"} 
+        rounded-full 
+        bg-gray-100 
+        flex 
+        items-center 
+        justify-center 
+        text-gray-900 
+        font-medium
+        ${style || ""}
+      `}
     >
-      {getInitials(fullName || "")}
+      <span className="flex items-center justify-center w-full h-full text leading-none">
+        {initials}
+      </span>
     </div>
   );
 };

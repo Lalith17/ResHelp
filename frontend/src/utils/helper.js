@@ -18,11 +18,3 @@ export const isValidURL = (url) => {
     /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/;
   return urlRegex.test(url);
 };
-export const getInitials = (name) => {
-  if (!name || typeof name !== "string") return "";
-  return name
-    .split(" ")
-    .map((n) => (n ? n[0] : ""))
-    .join("")
-    .toUpperCase();
-};

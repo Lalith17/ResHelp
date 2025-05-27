@@ -35,6 +35,7 @@ export const getMatch = async (req, res) => {
       certificates: matchedCerts,
       projects: matchedProjs,
       experiences: matchedExps,
+      overall_score: overall_score,
     } = response.data;
 
     const finalCerts = filterFullDataByMatchedIdsNoScore(
@@ -50,18 +51,12 @@ export const getMatch = async (req, res) => {
       matchedExps
     );
 
-    console.log(
-      "Matched data sent to frontend:",
-      finalCerts,
-      finalProjs,
-      finalExps
-    );
-
     // Send full matched data to frontend
     res.json({
       certificates: finalCerts,
       projects: finalProjs,
       experiences: finalExps,
+      overall_score: overall_score,
     });
   } catch (err) {
     console.error("Matching error:", err);
