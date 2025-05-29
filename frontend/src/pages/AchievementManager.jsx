@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Plus, Award, X } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Plus, Award, X, FileText, Briefcase, Medal } from "lucide-react";
 import { API_PATHS } from "../utils/apiPaths";
 import axiosInstance from "../utils/axiosInstance";
 import { useUserStore } from "../store/userstore";
@@ -10,298 +10,190 @@ import { CertificateForm } from "../components/achievements/certificateForm";
 import { ProjectForm } from "../components/achievements/projectForm";
 import { ExperienceForm } from "../components/achievements/experienceForm";
 import TabButton from "../components/achievements/tabButton";
-import { FileText, Briefcase, Medal } from "lucide-react";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { GitHubImportModal } from "../components/githubImportModal";
+
+const TABS = {
+  Certificate: {
+    label: "Certificates",
+    icon: FileText,
+    fetch: API_PATHS.CERTIFICATE.CERTIFICATE_ALLOPS,
+    create: API_PATHS.CERTIFICATE.CREATE_CERTIFICATE,
+    component: CertificateCard,
+    form: CertificateForm,
+  },
+  Project: {
+    label: "Projects",
+    icon: Briefcase,
+    fetch: API_PATHS.PROJECT.PROJECT_ALLOPS,
+    create: API_PATHS.PROJECT.CREATE_PROJECT,
+    component: ProjectCard,
+    form: ProjectForm,
+  },
+  Experience: {
+    label: "Experiences",
+    icon: Medal,
+    fetch: API_PATHS.EXPERIENCE.EXPERIENCE_ALLOPS,
+    create: API_PATHS.EXPERIENCE.CREATE_EXPERIENCE,
+    component: ExperienceCard,
+    form: ExperienceForm,
+  },
+};
+
 const AchievementManager = () => {
   const [activeTab, setActiveTab] = useState("Certificate");
   const [isAddingNew, setIsAddingNew] = useState(false);
-  const [certificates, setCertificates] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [experiences, setExperiences] = useState([]);
-  const [loadingStates, setLoadingStates] = useState({
+  const [editData, setEditData] = useState(null);
+  const [data, setData] = useState({
+    Certificate: [],
+    Project: [],
+    Experience: [],
+  });
+  const [loading, setLoading] = useState({
+    Certificate: false,
+    Project: false,
+    Experience: false,
+    Repos: false,
+  });
+  const [fetchedTabs, setFetchedTabs] = useState({
     Certificate: false,
     Project: false,
     Experience: false,
   });
+  const [repos, setRepos] = useState([]);
+  const [showGitHubModal, setShowGitHubModal] = useState(false);
   const userData = useUserStore((state) => state.userData);
-  const [editData, setEditData] = useState(null);
 
-  const fetchCertificates = async () => {
-    setLoadingStates((prev) => ({ ...prev, Certificate: true }));
-    try {
-      const response = await axiosInstance.get(
-        API_PATHS.CERTIFICATE.CERTIFICATE_ALLOPS(userData._id)
-      );
-      setCertificates(response.data.data || []);
-    } catch (error) {
-      console.error("Error fetching certificates:", error);
-    } finally {
-      setLoadingStates((prev) => ({
-        ...prev,
-        Certificate: false,
-      }));
-    }
-  };
-
-  const fetchProjects = async () => {
-    setLoadingStates((prev) => ({ ...prev, Project: true }));
-    try {
-      const response = await axiosInstance.get(
-        API_PATHS.PROJECT.PROJECT_ALLOPS(userData._id)
-      );
-      setProjects(response.data.data || []);
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-    } finally {
-      setLoadingStates((prev) => ({
-        ...prev,
-        Project: false,
-      }));
-    }
-  };
-
-  const fetchExperiences = async () => {
-    setLoadingStates((prev) => ({ ...prev, Experience: true }));
-    try {
-      const response = await axiosInstance.get(
-        API_PATHS.EXPERIENCE.EXPERIENCE_ALLOPS(userData._id)
-      );
-      setExperiences(response.data.data || []);
-    } catch (error) {
-      console.error("Error fetching experiences:", error);
-    } finally {
-      setLoadingStates((prev) => ({
-        ...prev,
-        Experience: false,
-      }));
-    }
-  };
+  const fetchData = useCallback(
+    async (tab) => {
+      setLoading((prev) => ({ ...prev, [tab]: true }));
+      try {
+        const res = await axiosInstance.get(TABS[tab].fetch(userData._id));
+        setData((prev) => ({ ...prev, [tab]: res.data.data || [] }));
+        setFetchedTabs((prev) => ({ ...prev, [tab]: true }));
+      } catch (err) {
+        console.error(`Error fetching ${tab}:`, err);
+      } finally {
+        setLoading((prev) => ({ ...prev, [tab]: false }));
+      }
+    },
+    [userData]
+  );
 
   useEffect(() => {
-    if (!userData?._id) return;
-
-    switch (activeTab) {
-      case "Certificate":
-        fetchCertificates();
-        break;
-      case "Project":
-        fetchProjects();
-        break;
-      case "Experience":
-        fetchExperiences();
-        break;
+    if (userData?._id && !fetchedTabs[activeTab]) {
+      fetchData(activeTab);
     }
-  }, [activeTab, userData]);
+  }, [activeTab, userData, fetchedTabs, fetchData]);
 
-  const handleAddCertificate = async (formData) => {
+  const handleSave = async (formData) => {
     try {
-      if (editData && editData._id) {
-        await axiosInstance.put(
-          API_PATHS.CERTIFICATE.CERTIFICATE_ALLOPS(editData._id),
-          formData
-        );
+      if (editData?._id) {
+        await axiosInstance.put(TABS[activeTab].fetch(editData._id), formData);
       } else {
-        await axiosInstance.post(
-          API_PATHS.CERTIFICATE.CREATE_CERTIFICATE,
-          formData
-        );
+        await axiosInstance.post(TABS[activeTab].create, formData);
       }
-
-      fetchCertificates();
+      fetchData(activeTab);
       setIsAddingNew(false);
       setEditData(null);
-    } catch (error) {
-      console.error("Error adding certificate:", error);
+    } catch (err) {
+      console.error(`Error saving ${activeTab}:`, err);
     }
   };
 
-  const handleAddProject = async (formData) => {
+  const handleDelete = async (id) => {
     try {
-      if (editData && editData._id) {
-        await axiosInstance.put(
-          API_PATHS.PROJECT.PROJECT_ALLOPS(editData._id),
-          formData
-        );
-      } else {
-        await axiosInstance.post(API_PATHS.PROJECT.CREATE_PROJECT, formData);
-      }
-      fetchProjects();
-      setIsAddingNew(false);
-      setEditData(null);
-    } catch (error) {
-      console.error("Error adding project:", error.message);
+      await axiosInstance.delete(TABS[activeTab].fetch(id));
+      fetchData(activeTab);
+    } catch (err) {
+      console.error(`Error deleting ${activeTab}:`, err);
     }
   };
 
-  const handleAddExperience = async (formData) => {
+  const handleGitHubImport = async () => {
+    setLoading((prev) => ({ ...prev, Repos: true }));
     try {
-      if (editData && editData._id) {
-        await axiosInstance.put(
-          API_PATHS.EXPERIENCE.EXPERIENCE_ALLOPS(editData._id),
-          formData
-        );
-      } else {
-        await axiosInstance.post(
-          API_PATHS.EXPERIENCE.CREATE_EXPERIENCE,
-          formData
-        );
-      }
-      fetchExperiences();
-      setIsAddingNew(false);
-      setEditData(null);
-    } catch (error) {
-      console.error("Error adding experience:", error);
-    }
-  };
-  const getCurrentAchievements = () => {
-    switch (activeTab) {
-      case "Certificate":
-        return certificates;
-      case "Project":
-        return projects;
-      case "Experience":
-        return experiences;
-      default:
-        return [];
-    }
-  };
-  const handleEditCertificate = (cert) => {
-    setEditData(cert);
-    setIsAddingNew(true);
-  };
-  const handleEditProject = async (project) => {
-    setEditData(project);
-    setIsAddingNew(true);
-  };
-  const handleEditExperience = async (experience) => {
-    setEditData(experience);
-    setIsAddingNew(true);
-  };
-  const handleDeleteCertificate = async (id) => {
-    try {
-      await axiosInstance.delete(API_PATHS.CERTIFICATE.CERTIFICATE_ALLOPS(id));
-      fetchCertificates();
-    } catch (error) {
-      console.error("Error deleting certificate:", error);
-    }
-  };
-
-  const handleDeleteProject = async (projectId) => {
-    try {
-      await axiosInstance.delete(API_PATHS.PROJECT.PROJECT_ALLOPS(projectId));
-      fetchProjects();
-    } catch (error) {
-      console.error("Error deleting project:", error);
-    }
-  };
-  const handleDeleteExperience = async (experienceId) => {
-    try {
-      await axiosInstance.delete(
-        API_PATHS.EXPERIENCE.EXPERIENCE_ALLOPS(experienceId)
+      const res = await axiosInstance.get(
+        API_PATHS.PROJECT.GET_ALL_GITHUB_REPOS
       );
-      fetchExperiences();
-    } catch (error) {
-      console.error("Error deleting experience:", error);
+      setRepos(res.data.repos);
+      setShowGitHubModal(true);
+    } catch (err) {
+      console.error("Failed to fetch GitHub repos", err);
+    } finally {
+      setLoading((prev) => ({ ...prev, Repos: false }));
     }
   };
-  const renderAchievements = () => {
-    if (loadingStates[activeTab]) return <LoadingSpinner />;
 
-    const achievements = getCurrentAchievements();
-
-    if (achievements.length === 0) {
-      return (
-        <div className="flex flex-col items-center justify-center py-12">
-          <Award className="h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-lg font-medium text-gray-900">
-            No {activeTab}s found
-          </h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Get started by adding your first {activeTab}
-          </p>
-          <button
-            onClick={() => setIsAddingNew(true)}
-            className="mt-4 inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add {activeTab}
-          </button>
-        </div>
+  const handleImport = async (selectedRepos) => {
+    try {
+      await axiosInstance.post(
+        API_PATHS.PROJECT.IMPORT_GITHUB_REPOS(userData._id),
+        {
+          repos: selectedRepos.map((repo) => ({
+            name: repo.name || "",
+            description: repo.description || "",
+            html_url: repo.html_url || "",
+          })),
+        }
       );
-    }
-
-    switch (activeTab) {
-      case "Certificate":
-        return certificates.map((cert) => (
-          <CertificateCard
-            key={cert._id}
-            certificate={cert}
-            onEdit={() => handleEditCertificate(cert)}
-            onDelete={handleDeleteCertificate}
-          />
-        ));
-      case "Project":
-        return projects.map((proj) => (
-          <ProjectCard
-            key={proj._id}
-            project={proj}
-            onEdit={() => handleEditProject(proj)}
-            onDelete={handleDeleteProject}
-          />
-        ));
-      case "Experience":
-        return experiences.map((exp) => (
-          <ExperienceCard
-            key={exp._id}
-            experience={exp}
-            onEdit={() => handleEditExperience(exp)}
-            onDelete={handleDeleteExperience}
-          />
-        ));
-      default:
-        return null;
+      fetchData("Project");
+      setShowGitHubModal(false);
+    } catch (err) {
+      console.error("Error importing repos", err);
     }
   };
+
+  const CurrentForm = TABS[activeTab].form;
+  const CurrentCard = TABS[activeTab].component;
+  const items = data[activeTab];
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between space-y-4 sm:flex-row sm:items-center sm:space-y-0">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Achievement Manager
-        </h1>
-        <button
-          onClick={() => setIsAddingNew(true)}
-          className="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add {activeTab}
-        </button>
+      <div className="flex flex-col justify-between sm:flex-row sm:items-center space-y-4 sm:space-y-0">
+        <h1 className="text-2xl font-bold">Achievement Manager</h1>
+        <div className="flex gap-4">
+          <button
+            onClick={() => setIsAddingNew(true)}
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add {activeTab}
+          </button>
+          {activeTab === "Project" && (
+            <button
+              onClick={handleGitHubImport}
+              disabled={loading.Repos}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md shadow-sm hover:bg-gray-900"
+            >
+              {loading.Repos ? (
+                <LoadingSpinner className="w-4 h-4 mr-2" />
+              ) : (
+                <svg
+                  className="mr-2 h-4 w-4 fill-current"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.263.82-.583 0-.287-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757-1.09-.745.082-.73.082-.73 1.205.084 1.838 1.238 1.838 1.238 1.07 1.835 2.807 1.305 3.492.997.108-.776.418-1.305.762-1.605-2.665-.3-5.466-1.335-5.466-5.933 0-1.31.47-2.38 1.236-3.22-.124-.303-.536-1.523.117-3.176 0 0 1.008-.322 3.3 1.23a11.52 11.52 0 013.003-.403c1.018.005 2.044.137 3.003.403 2.29-1.553 3.297-1.23 3.297-1.23.654 1.653.242 2.873.118 3.176.77.84 1.234 1.91 1.234 3.22 0 4.61-2.803 5.63-5.475 5.922.43.372.823 1.103.823 2.222 0 1.604-.015 2.896-.015 3.286 0 .32.218.698.825.58C20.565 21.795 24 17.298 24 12c0-6.63-5.373-12-12-12z" />
+                </svg>
+              )}
+              Import from GitHub
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="border-b border-gray-200">
-        <nav className="flex w-full">
+      <div className="flex w-full border-b">
+        {Object.entries(TABS).map(([key, tab]) => (
           <TabButton
-            active={activeTab === "Certificate"}
-            onClick={() => setActiveTab("Certificate")}
-            icon={<FileText className="h-5 w-5" />}
-            label="Certificates"
+            key={key}
+            active={activeTab === key}
+            onClick={() => setActiveTab(key)}
+            icon={<tab.icon className="w-5 h-5" />}
+            label={tab.label}
             className="w-1/3 text-center"
           />
-          <TabButton
-            active={activeTab === "Project"}
-            onClick={() => setActiveTab("Project")}
-            icon={<Briefcase className="h-5 w-5" />}
-            label="Projects"
-            className="w-1/3 text-center"
-          />
-          <TabButton
-            active={activeTab === "Experience"}
-            onClick={() => setActiveTab("Experience")}
-            icon={<Medal className="h-5 w-5" />}
-            label="Experiences"
-            className="w-1/3 text-center"
-          />
-        </nav>
+        ))}
       </div>
 
       {isAddingNew && (
@@ -313,55 +205,74 @@ const AchievementManager = () => {
             >
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
-            <div className="inline-block transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 sm:align-middle">
-              <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
+            <div className="inline-block transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 sm:align-middle">
+              <div className="absolute top-0 right-0 hidden pt-4 pr-4 sm:block">
                 <button
                   type="button"
-                  className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
-                  onClick={() => setIsAddingNew(false)}
+                  className="text-gray-400 bg-white rounded-md hover:text-gray-500 focus:outline-none"
+                  onClick={() => {
+                    setIsAddingNew(false);
+                    setEditData(null);
+                  }}
                 >
-                  <span className="sr-only">Close</span>
-                  <X className="h-6 w-6" />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
-              {activeTab === "Certificate" && (
-                <CertificateForm
-                  onClose={() => {
-                    setIsAddingNew(false);
-                    setEditData(null);
-                  }}
-                  onSubmit={handleAddCertificate}
-                  editData={editData}
-                />
-              )}
-              {activeTab === "Project" && (
-                <ProjectForm
-                  onClose={() => {
-                    setIsAddingNew(false);
-                    setEditData(null);
-                  }}
-                  onSubmit={handleAddProject}
-                  editData={editData}
-                />
-              )}
-              {activeTab === "Experience" && (
-                <ExperienceForm
-                  onClose={() => {
-                    setIsAddingNew(false);
-                    setEditData(null);
-                  }}
-                  editData={editData}
-                  onSubmit={handleAddExperience}
-                />
-              )}
+              <CurrentForm
+                onClose={() => {
+                  setIsAddingNew(false);
+                  setEditData(null);
+                }}
+                onSubmit={handleSave}
+                editData={editData}
+              />
             </div>
           </div>
         </div>
       )}
 
-      <div className="divide-y divide-gray-200 rounded-lg bg-white shadow">
-        {renderAchievements()}
+      <div className="divide-y rounded-lg bg-white shadow divide-gray-200">
+        {loading[activeTab] ? (
+          <LoadingSpinner />
+        ) : items.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <Award className="w-12 h-12 text-gray-400" />
+            <h3 className="mt-2 text-lg font-medium text-gray-900">
+              No {activeTab}s found
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Get started by adding your first {activeTab}
+            </p>
+            <button
+              onClick={() => setIsAddingNew(true)}
+              className="mt-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add {activeTab}
+            </button>
+          </div>
+        ) : (
+          items.map((item) => (
+            <CurrentCard
+              key={item._id}
+              {...{ [activeTab.toLowerCase()]: item }}
+              onEdit={() => {
+                setEditData(item);
+                setIsAddingNew(true);
+              }}
+              onDelete={() => handleDelete(item._id)}
+            />
+          ))
+        )}
       </div>
+
+      {showGitHubModal && !loading.Repos && (
+        <GitHubImportModal
+          reposistories={repos}
+          onImport={handleImport}
+          onClose={() => setShowGitHubModal(false)}
+        />
+      )}
     </div>
   );
 };

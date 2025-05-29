@@ -15,13 +15,16 @@ export const ProjectForm = ({ onClose, onSubmit, editData }) => {
   useEffect(() => {
     if (editData) {
       setFormData({
-        ...editData,
-        languages: editData.languages?.join(", ") || "",
-        tags: editData.tags?.join(", ") || "",
-        description: editData.description?.join("\n") || "",
+        userId: editData.userId || userData._id || "",
+        name: editData.name || "",
+        languages: editData.languages?.join(", ") ?? "",
+        repoLink: editData.repoLink || "",
+        deployedLink: editData.deployedLink || "",
+        description: editData.description?.join("\n") ?? "",
+        tags: editData.tags?.join(", ") ?? "",
       });
     }
-  }, [editData]);
+  }, [editData, userData._id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

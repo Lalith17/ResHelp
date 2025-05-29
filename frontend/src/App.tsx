@@ -13,6 +13,7 @@ import { useContext } from "react";
 import Onboarding from "./pages/onboarding";
 import { useUserStore } from "./store/userstore";
 import LoadingSpinner from "./components/LoadingSpinner";
+import OAuthSuccess from "./pages/OAuthSuccess";
 
 function App() {
   const { isAuthenticated } = useContext(UserContext);
@@ -36,6 +37,7 @@ function App() {
               !isAuthenticated ? <Signup /> : <Navigate to="/" replace />
             }
           />
+          <Route path="/oauth-success" element={<OAuthSuccess />} />
 
           {/* Protected Routes */}
           <Route

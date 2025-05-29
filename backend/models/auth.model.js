@@ -9,7 +9,21 @@ const authSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+    },
+    provider: {
+      type: String,
+      enum: ["local", "google", "github", "linkedin"],
+      default: "local",
+    },
+    github: {
+      accessToken: { type: String },
+      username: { type: String },
+    },
+    linkedin: {
+      accessToken: { type: String },
+      linkedinId: { type: String }, // LinkedIn user ID
+      firstName: { type: String },
+      lastName: { type: String },
     },
   },
   {

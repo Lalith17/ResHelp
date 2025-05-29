@@ -6,6 +6,9 @@ export const API_PATHS = {
     GET_USER: `/api/auth/getUser`,
     UPDATE_PASSWORD: `/api/auth/updatePassword`,
     FORGOT_PASSWORD: `/api/auth/forgotPassword`,
+    GOOGLE: `/api/auth/google`,
+    GITHUB: `/api/auth/github`,
+    LINKEDIN: `/api/auth/linkedin`,
   },
   DASHBOARD: {
     GET_DATA: (userId) => `/api/dashboard/${userId}`,
@@ -25,6 +28,8 @@ export const API_PATHS = {
   PROJECT: {
     CREATE_PROJECT: `/api/projects/`,
     PROJECT_ALLOPS: (projectId) => `/api/projects/${projectId}`,
+    GET_ALL_GITHUB_REPOS: `/api/projects/getAllGithub/`,
+    IMPORT_GITHUB_REPOS: (id) => `/api/projects/importGithub/${id}`,
   },
   EXPERIENCE: {
     CREATE_EXPERIENCE: `/api/experiences/`,
