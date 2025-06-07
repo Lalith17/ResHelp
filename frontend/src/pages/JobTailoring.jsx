@@ -148,7 +148,7 @@ const JobTailoring = () => {
                       <h3 className="text-lg font-medium text-gray-900">
                         Analysis Complete
                       </h3>
-                      <div className="flex items-center space-x-1">
+                      {/* <div className="flex items-center space-x-1">
                         <CheckCircle className="h-5 w-5 text-green-600" />
                         <span className="text-sm font-medium text-gray-700">
                           Match:
@@ -156,7 +156,7 @@ const JobTailoring = () => {
                         <span className="text-sm font-semibold text-green-700">
                           {matchscore}%
                         </span>
-                      </div>
+                      </div> */}
                     </div>
 
                     {/* Right: Close Button */}
