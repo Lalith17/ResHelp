@@ -49,3 +49,6 @@ Thumbs.db
 # Others
 *.swp
 *.swo
+
+# Latex
+latexParsing/

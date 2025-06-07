@@ -4,9 +4,8 @@ import {
   FileText,
   X,
   Sparkles,
-  User,
+  Code2Icon,
   Briefcase,
-  Medal,
   GraduationCap,
   CheckCircle,
   Award,
@@ -37,7 +36,7 @@ const JobTailoring = () => {
     setAnalysisComplete(false);
 
     try {
-      const response = await axiosInstance.post(API_PATHS.MATCH.GET_MATCH, {
+      const response = await axiosInstance.post(API_PATHS.MATCH.MATCH_ALL, {
         jobDescription,
         userId: userData._id,
       });
@@ -176,21 +175,21 @@ const JobTailoring = () => {
                       <TabButton
                         active={activeTab === "Matched Certificates"}
                         onClick={() => setActiveTab("Matched Certificates")}
-                        icon={<FileText className="h-5 w-5" />}
+                        icon={<Award className="h-5 w-5" />}
                         label="Matched Certificates"
                         className="w-1/3 text-center"
                       />
                       <TabButton
                         active={activeTab === "Matched Projects"}
                         onClick={() => setActiveTab("Matched Projects")}
-                        icon={<Briefcase className="h-5 w-5" />}
+                        icon={<Code2Icon className="h-5 w-5" />}
                         label="Matched Projects"
                         className="w-1/3 text-center"
                       />
                       <TabButton
                         active={activeTab === "Matched Experiences"}
                         onClick={() => setActiveTab("Matched Experiences")}
-                        icon={<Medal className="h-5 w-5" />}
+                        icon={<Briefcase className="h-5 w-5" />}
                         label="Matched Experiences"
                         className="w-1/3 text-center"
                       />
@@ -198,7 +197,7 @@ const JobTailoring = () => {
                   </div>
 
                   {/* Results */}
-                  <div className="divide-y divide-gray-200 rounded-lg bg-white shadow">
+                  <div className="space-y-4 rounded-lg bg-white shadow">
                     {activeTab === "Matched Certificates" &&
                       certificates.map((cert) => (
                         <CertificateCard key={cert._id} certificate={cert} />
@@ -232,7 +231,7 @@ const JobTailoring = () => {
             description="Get a perfectly tailored resume that highlights your most relevant experience."
           />
           <FeatureCard
-            icon={<Award className="h-8 w-8 text-purple-600" />}
+            icon={<GraduationCap className="h-8 w-8 text-purple-600" />}
             title="Stand Out"
             description="Increase your chances of getting interviews with tailored resumes for each application."
           />

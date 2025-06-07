@@ -1,36 +1,31 @@
-import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { useState, useMemo } from "react";
+import { X, ToggleLeft, ToggleRight } from "lucide-react";
+import ProjectCard from "./achievements/projectCard";
 
-export function GitHubImportModal({ onClose, onImport, reposistories }) {
-  const [repos, setRepos] = useState([]);
+export function GitHubImportModal({ onClose, onImport, repositories }) {
   const [selected, setSelected] = useState([]);
 
-  useEffect(() => {
-    setRepos(reposistories);
-  }, []);
+  const isSelected = useMemo(() => {
+    const urls = new Set(selected.map((repo) => repo.html_url));
+    return (repo) => urls.has(repo.html_url);
+  }, [selected]);
 
-  // Toggle full repo object selection
   const toggleSelect = (repo) => {
-    setSelected((prev) => {
-      const exists = prev.find((r) => r.html_url === repo.html_url);
-      if (exists) {
-        return prev.filter((r) => r.html_url !== repo.html_url);
-      } else {
-        return [...prev, repo];
-      }
-    });
+    setSelected((prev) =>
+      isSelected(repo)
+        ? prev.filter((r) => r.html_url !== repo.html_url)
+        : [...prev, repo]
+    );
   };
 
-  // Select or deselect all full repo objects
   const handleSelectAll = () => {
-    if (selected.length === repos.length) {
+    if (selected.length === repositories.length) {
       setSelected([]);
     } else {
-      setSelected(repos);
+      setSelected(repositories);
     }
   };
 
-  // Pass full selected repo objects on submit
   const handleSubmit = () => {
     onImport(selected);
     onClose();
@@ -54,46 +49,64 @@ export function GitHubImportModal({ onClose, onImport, reposistories }) {
             </button>
           </div>
 
-          {/* Select All Toggle */}
-          <div className="mb-2">
-            <button
-              onClick={handleSelectAll}
-              className="text-sm text-indigo-600 hover:underline"
-            >
-              {selected.length === repos.length ? "Deselect All" : "Select All"}
-            </button>
-          </div>
+          <p className="text-sm text-yellow-800 bg-yellow-100 px-2 py-1 rounded mb-4">
+            After importing repositories, please review and edit the necessary
+            fields so our AI can process them better.
+          </p>
 
           <div className="max-h-[300px] overflow-y-auto space-y-2 mb-4">
-            {repos.map((repo) => (
+            {repositories.map((repo) => (
               <label
                 key={repo.id}
                 className="flex items-center space-x-2 border rounded p-2 hover:bg-gray-50 cursor-pointer"
               >
                 <input
                   type="checkbox"
-                  checked={!!selected.find((r) => r.html_url === repo.html_url)}
+                  checked={isSelected(repo)}
                   onChange={() => toggleSelect(repo)}
                 />
-                <span className="text-sm font-medium">{repo.name}</span>
+                <ProjectCard project={repo} />
               </label>
             ))}
           </div>
 
-          <div className="mt-4 flex justify-end space-x-2">
+          <div className="mt-4 flex justify-between items-center">
             <button
-              onClick={onClose}
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={handleSelectAll}
+              aria-pressed={selected.length === repositories.length}
+              className={`inline-flex items-center rounded-md px-3 py-1 transition-colors focus:outline-none ${
+                selected.length === repositories.length
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
             >
-              Cancel
+              {selected.length === repositories.length ? (
+                <ToggleRight className="h-5 w-5" />
+              ) : (
+                <ToggleLeft className="h-5 w-5" />
+              )}
+              <span className="ml-1 text-sm select-none">
+                {selected.length === repositories.length
+                  ? "Deselect All"
+                  : "Select All"}
+              </span>
             </button>
-            <button
-              onClick={handleSubmit}
-              className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-              disabled={selected.length === 0}
-            >
-              Import Selected ({selected.length})
-            </button>
+
+            <div className="flex space-x-2">
+              <button
+                onClick={onClose}
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                disabled={selected.length === 0}
+              >
+                Import Selected ({selected.length})
+              </button>
+            </div>
           </div>
         </div>
       </div>

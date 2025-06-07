@@ -14,6 +14,7 @@ import Onboarding from "./pages/onboarding";
 import { useUserStore } from "./store/userstore";
 import LoadingSpinner from "./components/LoadingSpinner";
 import OAuthSuccess from "./pages/OAuthSuccess";
+import ResumeBuilder from "./pages/ResumeBuilder";
 
 function App() {
   const { isAuthenticated } = useContext(UserContext);
@@ -66,6 +67,7 @@ function App() {
             <Route path="achievements" element={<AchievementManager />} />
             <Route path="job-tailoring" element={<JobTailoring />} />
             <Route path="resume-preview" element={<ResumePreview />} />
+            <Route path="resume-builder" element={<ResumeBuilder />} />
             <Route path="profile" element={<UserProfile />} />
             <Route path="*" element={<NotFound />} />
           </Route>

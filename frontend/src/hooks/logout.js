@@ -1,4 +1,3 @@
-// hooks/useHandleLogout.js
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/userstore";
 import { useContext } from "react";

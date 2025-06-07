@@ -1,14 +1,13 @@
 import React from "react";
-import { Briefcase, Edit, Trash2 } from "lucide-react";
+import { Code2Icon, Edit, Trash2 } from "lucide-react";
 
 const ProjectCard = ({ project, onEdit, onDelete }) => {
   const showActions = onEdit || onDelete;
 
   return (
-    <div className="group relative flex cursor-pointer items-center p-6 hover:bg-gray-50">
-      {/* Icon */}
+    <div className="group relative flex cursor-pointer items-center p-6 rounded-lg hover:ring-2 hover:ring-indigo-500 hover:ring-offset-1 transition-shadow">
       <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-50">
-        <Briefcase className="h-6 w-6 text-blue-600" />
+        <Code2Icon className="h-6 w-6 text-blue-600" />
       </div>
 
       {/* Main Content */}

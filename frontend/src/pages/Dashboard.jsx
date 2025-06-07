@@ -4,9 +4,9 @@ import {
   FileText,
   Download,
   TrendingUp,
-  CheckCircle,
-  Clock,
+  Gem,
   Briefcase,
+  Trophy,
 } from "lucide-react";
 import StatsCard from "../components/dashboard/StatsCard";
 import ActivityItem from "../components/dashboard/ActivityItem";
@@ -74,7 +74,7 @@ const Dashboard = () => {
         <StatsCard
           title="Total Achievements"
           value={totalAchievements}
-          icon={<Award className="h-6 w-6 text-indigo-600" />}
+          icon={<Trophy className="h-6 w-6 text-indigo-600" />}
           trend="up"
         />
         <StatsCard
@@ -93,7 +93,7 @@ const Dashboard = () => {
         <StatsCard
           title="Certificates Earned"
           value={certificatesCount}
-          icon={<FileText className="h-6 w-6 text-purple-600" />}
+          icon={<Award className="h-6 w-6 text-purple-600" />}
           trend="up"
         />
       </div>
@@ -160,7 +160,7 @@ const Dashboard = () => {
                 title="New Achievement Added"
                 description="Added 'Team Leadership Certificate' to your achievements"
                 time="Yesterday"
-                icon={<Award className="h-5 w-5 text-indigo-500" />}
+                icon={<Trophy className="h-5 w-5 text-indigo-500" />}
               />
               <ActivityItem
                 title="Resume Tailored"

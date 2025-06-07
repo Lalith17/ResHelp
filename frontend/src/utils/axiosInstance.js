@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BASE_URL } from "./apiPaths";
-import { Navigate } from "react-router-dom";
+import { useHandleLogout } from "@/hooks/logout";
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 10000, // 10 seconds
@@ -30,9 +30,8 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response) {
       if (error.response.status === 401) {
-        console.warn(
-          "Unauthorized - show login prompt or redirect in component"
-        );
+        localStorage.clear();
+        window.location.href = "/login"; // hard redirect
       } else if (error.response.status === 500) {
         console.error("Server error:", error.response.data);
       }

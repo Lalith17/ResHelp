@@ -2,13 +2,14 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
-  Award,
-  FileText,
+  Trophy,
   Eye,
   User,
   Settings,
   ChevronLeft,
   ChevronRight,
+  ScanSearch,
+  FileEdit,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -18,9 +19,18 @@ interface SidebarProps {
 
 const navItemsTop = [
   { to: "/", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
-  { to: "/achievements", icon: <Award size={20} />, label: "Achievements" },
-  { to: "/job-tailoring", icon: <FileText size={20} />, label: "Job Analysis" },
+  { to: "/achievements", icon: <Trophy size={20} />, label: "Achievements" },
+  {
+    to: "/job-tailoring",
+    icon: <ScanSearch size={20} />,
+    label: "Job Analysis",
+  },
   { to: "/resume-preview", icon: <Eye size={20} />, label: "Resume Preview" },
+  {
+    to: "/resume-builder",
+    icon: <FileEdit size={20} />,
+    label: "Resume Builder",
+  },
 ];
 
 const navItemsBottom = [

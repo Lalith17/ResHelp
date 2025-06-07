@@ -40,6 +40,9 @@ export const API_PATHS = {
     RESUME_ALLOPS: (resumeId) => `/api/resumes/${resumeId}`,
   },
   MATCH: {
-    GET_MATCH: `/api/match/`,
+    MATCH_CERTIFICATES: `/api/match/certificates`,
+    MATCH_PROJECTS: `/api/match/projects`,
+    MATCH_EXPERIENCES: `/api/match/experiences`,
+    MATCH_ALL: `/api/match/all`,
   },
 };

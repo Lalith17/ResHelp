@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Plus, Award, X, FileText, Briefcase, Medal } from "lucide-react";
-import { API_PATHS } from "../utils/apiPaths";
+import { Plus, Award, X, Briefcase, Code2Icon } from "lucide-react";
+import { API_PATHS } from "@/utils/apiPaths";
 import axiosInstance from "../utils/axiosInstance";
 import { useUserStore } from "../store/userstore";
-import CertificateCard from "../components/achievements/certificateCard";
+import CertificateCard from "@/components/achievements/certificateCard";
 import ProjectCard from "../components/achievements/projectCard";
 import ExperienceCard from "../components/achievements/experienceCard";
 import { CertificateForm } from "../components/achievements/certificateForm";
@@ -16,7 +16,7 @@ import { GitHubImportModal } from "../components/githubImportModal";
 const TABS = {
   Certificate: {
     label: "Certificates",
-    icon: FileText,
+    icon: Award,
     fetch: API_PATHS.CERTIFICATE.CERTIFICATE_ALLOPS,
     create: API_PATHS.CERTIFICATE.CREATE_CERTIFICATE,
     component: CertificateCard,
@@ -24,7 +24,7 @@ const TABS = {
   },
   Project: {
     label: "Projects",
-    icon: Briefcase,
+    icon: Code2Icon,
     fetch: API_PATHS.PROJECT.PROJECT_ALLOPS,
     create: API_PATHS.PROJECT.CREATE_PROJECT,
     component: ProjectCard,
@@ -32,7 +32,7 @@ const TABS = {
   },
   Experience: {
     label: "Experiences",
-    icon: Medal,
+    icon: Briefcase,
     fetch: API_PATHS.EXPERIENCE.EXPERIENCE_ALLOPS,
     create: API_PATHS.EXPERIENCE.CREATE_EXPERIENCE,
     component: ExperienceCard,
@@ -111,12 +111,17 @@ const AchievementManager = () => {
   };
 
   const handleGitHubImport = async () => {
+    if (repos.length > 0) {
+      setShowGitHubModal(true); // already fetched, just show the modal
+      return;
+    }
+
     setLoading((prev) => ({ ...prev, Repos: true }));
     try {
       const res = await axiosInstance.get(
         API_PATHS.PROJECT.GET_ALL_GITHUB_REPOS
       );
-      setRepos(res.data.repos);
+      setRepos(res.data.repos || []);
       setShowGitHubModal(true);
     } catch (err) {
       console.error("Failed to fetch GitHub repos", err);
@@ -183,7 +188,7 @@ const AchievementManager = () => {
         </div>
       </div>
 
-      <div className="flex w-full border-b">
+      <div className="flex w-full rounded-lg bg-white shadow">
         {Object.entries(TABS).map(([key, tab]) => (
           <TabButton
             key={key}
@@ -231,12 +236,14 @@ const AchievementManager = () => {
         </div>
       )}
 
-      <div className="divide-y rounded-lg bg-white shadow divide-gray-200">
+      <div className="space-y-4 rounded-lg bg-white shadow">
         {loading[activeTab] ? (
           <LoadingSpinner />
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12">
-            <Award className="w-12 h-12 text-gray-400" />
+            {React.createElement(TABS[activeTab].icon, {
+              className: "w-12 h-12 text-gray-400",
+            })}
             <h3 className="mt-2 text-lg font-medium text-gray-900">
               No {activeTab}s found
             </h3>
@@ -268,7 +275,7 @@ const AchievementManager = () => {
 
       {showGitHubModal && !loading.Repos && (
         <GitHubImportModal
-          reposistories={repos}
+          repositories={repos}
           onImport={handleImport}
           onClose={() => setShowGitHubModal(false)}
         />

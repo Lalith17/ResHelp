@@ -1,13 +1,13 @@
 import React from "react";
-import { FileText, Edit, Trash2, Calendar } from "lucide-react";
+import { Briefcase, Edit, Trash2, Calendar } from "lucide-react";
 
 const ExperienceCard = ({ experience, onEdit, onDelete }) => {
   const showActions = onEdit || onDelete;
 
   return (
-    <div className="group relative flex cursor-pointer items-center p-6 hover:bg-gray-50">
+    <div className="group relative flex cursor-pointer items-center p-6 rounded-lg hover:ring-2 hover:ring-indigo-500 hover:ring-offset-1 transition-shadow">
       <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-indigo-50">
-        <FileText className="h-6 w-6 text-indigo-600" />
+        <Briefcase className="h-6 w-6 text-indigo-600" />
       </div>
       <div className="ml-4 flex-1 relative flex flex-col">
         {/* Title and Date Row */}
