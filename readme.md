@@ -44,15 +44,15 @@ Here’s a quick look at ResHelp in action:
 
 | Dashboard                               | Achievement Manager                                           | Resume Builder                                      |
 | --------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------- |
-| ![Dashboard](screenshots/Dashboard.png) | ![Achievement Manager](screenshots/Acheivement%20Manager.png) | ![Resume Builder](screenshots/Resume%20Builder.png) |
+| ![Dashboard](Screenshots/Dashboard.png) | ![Achievement Manager](Screenshots/Acheivement%20Manager.png) | ![Resume Builder](Screenshots/Resume%20Builder.png) |
 
 | GitHub Import                                     | JD Tailoring                                      | Suggestions                                 |
 | ------------------------------------------------- | ------------------------------------------------- | ------------------------------------------- |
-| ![GitHub Import](screenshots/Github%20Import.png) | ![Job Tailoring](screenshots/Job%20Tailoring.png) | ![Suggestions](screenshots/Suggestions.png) |
+| ![GitHub Import](Screenshots/Github%20Import.png) | ![Job Tailoring](Screenshots/Job%20Tailoring.png) | ![Suggestions](Screenshots/Suggestions.png) |
 
 | Experiences                                           | User Profile                                    |
 | ----------------------------------------------------- | ----------------------------------------------- |
-| ![Experiences](screenshots/Experiences%20Section.png) | ![User Profile](screenshots/User%20Profile.png) |
+| ![Experiences](Screenshots/Experiences%20Section.png) | ![User Profile](Screenshots/User%20Profile.png) |
 
 > ✅ All screenshots are from the actual working app!
 
