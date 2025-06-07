@@ -54,8 +54,6 @@ Here’s a quick look at ResHelp in action:
 | ----------------------------------------------------- | ----------------------------------------------- |
 | ![Experiences](Screenshots/Experiences%20Section.png) | ![User Profile](Screenshots/User%20Profile.png) |
 
-> ✅ All screenshots are from the actual working app!
-
 ---
 
 ## 🛠️ Tech Stack
