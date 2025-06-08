@@ -131,6 +131,8 @@ Here’s a quick look at ResHelp in action:
 - 📁 Resume versioning + sharing
 - 🏷️ Skill auto-tagging
 - ⚡ Enhanced UX and mobile experience
+- 🤖 AI Chat Assistant:
+A personalized, intelligent chatbot that guides users through job applications, answers context-aware questions, and helps fill out resumes and forms based on the user’s data — like having a career coach in your pocket!
 
 ---
 
