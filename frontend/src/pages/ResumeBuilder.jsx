@@ -24,6 +24,7 @@ import RecordsSection from "@/components/resumeBuilder/RecordsSection";
 import CertificateCard from "@/components/achievements/certificateCard";
 import ProjectCard from "@/components/achievements/projectCard";
 import ExperienceCard from "@/components/achievements/experienceCard";
+import axiosInstance from "../utils/axiosInstance";
 
 const sections = {
   Basics: {
@@ -131,9 +132,29 @@ const ResumeBuilder = () => {
     setResumeData((prev) => ({ ...prev, [section.toLowerCase()]: data }));
   };
 
-  const handleGenerateResume = () => {
-    console.log("Resume Data:", JSON.stringify(resumeData, null, 2));
-    alert("Resume data logged to console. Check developer tools.");
+  const handleGenerateResume = async () => {
+    try {
+      const response = await axiosInstance.post(
+        "http://localhost:8000/generate-resume/",
+        {
+          data: resumeData,
+          template_name: "template1.tex",
+        },
+        {
+          responseType: "blob", // Expecting binary file
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "resume.pdf";
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Resume generation failed:", error);
+      alert("Something went wrong while generating resume.");
+    }
   };
 
   const SectionComponent = sections[activeSection]?.component;

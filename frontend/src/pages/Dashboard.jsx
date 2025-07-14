@@ -79,7 +79,7 @@ const Dashboard = () => {
         />
         <StatsCard
           title="Resumes Created"
-          value="17"
+          value="0"
           change="+24%"
           icon={<TrendingUp className="h-6 w-6 text-blue-600" />}
           trend="up"

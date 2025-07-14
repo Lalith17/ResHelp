@@ -25,7 +25,6 @@ const navItemsTop = [
     icon: <ScanSearch size={20} />,
     label: "Job Analysis",
   },
-  { to: "/resume-preview", icon: <Eye size={20} />, label: "Resume Preview" },
   {
     to: "/resume-builder",
     icon: <FileEdit size={20} />,

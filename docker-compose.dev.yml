@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: resmern-backend-dev
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_TOKEN=${JWT_TOKEN}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - NLP_SERVICE_URL=http://nlp-service:8001
+      - LATEX_SERVICE_URL=http://latex-service:8002
+    volumes:
+      - ./uploads:/app/uploads
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - nlp-service
+      - latex-service
+    networks:
+      - app-network
+    command: npm run dev
+
+  nlp-service:
+    build: ./nlp
+    container_name: resmern-nlp-dev
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./nlp:/app
+    networks:
+      - app-network
+    command: uvicorn nlp_server:app --host 0.0.0.0 --port 8001 --reload
+
+  latex-service:
+    build: ./latexParsing
+    container_name: resmern-latex-dev
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./latexParsing:/app
+      - ./latexParsing/output:/app/output
+    networks:
+      - app-network
+    command: uvicorn app:app --host 0.0.0.0 --port 8002 --reload
+
+networks:
+  app-network:
+    driver: bridge
