@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import AchievementManager from "./pages/AchievementManager";
 import JobTailoring from "./pages/JobTailoring";
-import ResumePreview from "./pages/ResumePreview";
 import UserProfile from "./pages/UserProfile";
 import Layout from "./components/Layout";
 import NotFound from "./pages/NotFound";
@@ -66,7 +65,6 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="achievements" element={<AchievementManager />} />
             <Route path="job-tailoring" element={<JobTailoring />} />
-            <Route path="resume-preview" element={<ResumePreview />} />
             <Route path="resume-builder" element={<ResumeBuilder />} />
             <Route path="profile" element={<UserProfile />} />
             <Route path="*" element={<NotFound />} />
